@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Player</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0707052e; /* Light gray background */
+        }
+        .container {
+            padding-top: 2rem;
+            text-align: center; /* Center align container contents */
+        }
+        .video-player {
+            width: 100%;
+            max-width: 680px;
+            margin: auto; /* Center align video player */
+            margin-bottom: 1rem;
+        }
+        .upload-btn-wrapper,
+        .file-btn-wrapper {
+            margin: auto;
+            width: 50%; /* Smaller width for buttons */
+            margin-bottom: 1rem;
+        }
+        .btn {
+            display: block; /* Block level buttons */
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 class="mb-4">Video Player</h1>
+
+    <!-- Video player -->
+    <video id="video-player" class="video-player mb-3" controls>
+        Your browser does not support the video element.
+    </video>
+
+    <!-- Upload form -->
+    <form id="upload-form" class="mb-3">
+        <div class="file-btn-wrapper">
+            <div class="custom-file">
+                <input type="file" class="custom-file-input" id="file-input" accept="video/*">
+                <label class="custom-file-label" for="file-input">Browse File</label>
+            </div>
+        </div>
+        <div class="upload-btn-wrapper">
+            <button type="submit" class="btn btn-primary">Upload Video</button>
+        </div>
+    </form>
+</div>
+
+<!-- Bootstrap and jQuery -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+<!-- Your upload.js script -->
+<script src="frontend/js/upload.js"></script>
+
+<script>
+// Bootstrap file input label fix
+$(".custom-file-input").on("change", function() {
+  var fileName = $(this).val().split("\\").pop();
+  $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+});
+</script>
+
+</body>
+</html>
