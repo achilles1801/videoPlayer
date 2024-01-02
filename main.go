@@ -14,24 +14,29 @@ import (
 )
 
 func main() {
-    router := gin.Default() // initialize gin router
+    router := gin.Default() // entry point for our application
 
-    // Serve static files from frontend directory
-    router.Static("/frontend", "./frontend")
+    router.GET("/presign", handlePresign) // when a GET request is made to /presign, call handlePresign
+    router.GET("/list", handleListBucket)  // when a GET request is made to /list, call handleListBucket
 
-    router.GET("/presign", handlePresign) // Generate pre-signed URL
-    router.GET("/list", handleListBucket)  // New route for listing contents
     config := cors.DefaultConfig()
-    config.AllowOrigins = []string{"http://localhost:8080/frontend/"} // Replace with your frontend URL
+    config.AllowOrigins = []string{"http://localhost:8080"} // Replace with your frontend URL
     router.Use(cors.New(config))
+    
+    // Serve the main app when visiting the root path "/"
+    router.GET("/", func(c *gin.Context) {
+        c.File("./frontend/index.html")
+    })
+    router.Static("/js", "./frontend/js")
 
     router.Run(":8080") // serve on port 8080
 }
-func handleListBucket(c *gin.Context) {
-    sess := createAWSSession()
-    svc := s3.New(sess)
 
-    bucketName := "majdks-video-player-bucket"  // Replace with your bucket name
+func handleListBucket(c *gin.Context) {
+    sess := createAWSSession() // create a new AWS session
+    svc := s3.New(sess) // create a new S3 client
+
+    bucketName := "majdks-video-player-bucket"  // name of the bucket
 
     // Call S3 to list current objects
     result, err := svc.ListObjectsV2(&s3.ListObjectsV2Input{
@@ -108,4 +113,5 @@ func createAWSSession() *session.Session {
     }
     return sess
 }
+
 

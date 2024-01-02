@@ -15,28 +15,26 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function getPresignedUrlAndUpload(file) {
-        // Replace with your server URL and add any needed query parameters
-        const presignUrlEndpoint = 'http://localhost:8080/presign?filename=' + encodeURIComponent(file.name);
-
+        const presignUrlEndpoint = 'http://localhost:8080/presign?filename=upload/' + encodeURIComponent(file.name);    
         fetch(presignUrlEndpoint)
             .then(response => response.json())
             .then(data => {
                 if (data.url) {
-                    return uploadFileToS3(data.url, file);
+                    // Use the presigned URL obtained from the server
+                    return uploadFileToS3(data.url, file).then(() => data.url);
                 } else {
                     throw new Error('Failed to get a presigned URL.');
                 }
             })
-            .then(() => {
-                // Here you would update the video player source to the public URL or the presigned GET URL
-                // If using presigned URLs for viewing, you'd need to implement generating those in your backend
-                const videoUrl = 'https://your-s3-bucket.s3.amazonaws.com/' + encodeURIComponent(file.name);
-                updateVideoPlayer(videoUrl);
+            .then(url => {
+                // Update the video player source with the presigned URL
+                updateVideoPlayer(url);
             })
             .catch(error => {
                 console.error('An error occurred!', error);
             });
     }
+    
 
     function uploadFileToS3(presignedUrl, file) {
         return fetch(presignedUrl, {
