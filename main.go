@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -13,11 +14,15 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/joho/godotenv"
 )
 
 func main() {
     router := gin.Default() // entry point for our application
-
+    err := godotenv.Load()
+    if err != nil {
+        log.Fatal("Error loading .env file")
+    }
     config := cors.DefaultConfig()
     config.AllowOrigins = []string{"http://localhost:3000"} // Replace with your frontend URL
     router.Use(cors.New(config))
@@ -25,16 +30,16 @@ func main() {
     router.GET("/presign", handlePresign) // when a GET request is made to /presign, call handlePresign
     router.GET("/list", handleListBucket)  // when a GET request is made to /list, call handleListBucket
 
-    // Serve the main app when visiting the root path "/"
-    router.GET("/", func(c *gin.Context) {
-        c.File("./frontend/index.html")
-    })
-    router.Static("/js", "./frontend/js")
+    // // Serve the main app when visiting the root path "/"
+    // router.GET("/", func(c *gin.Context) {
+    //     c.File("./frontend/index.html")
+    // })
+    // router.Static("/js", "./frontend/js")
 
     router.Run(":8080") // serve on port 8080
 }
 
-func handleListBucket(c *gin.Context) {
+func handleListBucket(c *gin.Context) { //responsible for listing all the videos in the bucket
     sess := createAWSSession() // create a new AWS session
     svc := s3.New(sess) // create a new S3 client
 
@@ -89,6 +94,7 @@ func handlePresign(c *gin.Context) {
         Bucket: aws.String("majdks-video-player-bucket"),
         Key:    &key,
         ACL:   aws.String("public-read"),
+        ContentType: aws.String("video/mp4"),
     })
     urlStr, err := req.Presign(15 * time.Minute) // URL expires in 15 minutes
     if err != nil {
@@ -102,9 +108,12 @@ func handlePresign(c *gin.Context) {
 
 
 func createAWSSession() *session.Session {
+    awsAccessKeyID := os.Getenv("AWS_ACCESS_KEY_ID")
+    awsSecretAccessKey := os.Getenv("AWS_SECRET_ACCESS_KEY")
+
     sess, err := session.NewSession(&aws.Config{
         Region: aws.String("us-east-2"), // Set your AWS region
-        Credentials: credentials.NewStaticCredentials("AKIAYP5CN6RKM73QN2QR", "pIP23PYfDOhx6qgZ8muTi53QDBuv6DKsKfOZd8/W", ""),
+        Credentials: credentials.NewStaticCredentials(awsAccessKeyID, awsSecretAccessKey, ""),
     })
     if err != nil {
         log.Fatalf("failed to create session: %s", err.Error())

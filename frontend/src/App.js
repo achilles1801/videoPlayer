@@ -4,7 +4,7 @@ function App() {
   const [videos, setVideos] = useState([]);
 
 
-  const handleFileChange = (event) => {
+  const handleFileChange = (event) => { // *2 call uploadVideo function
     const file = event.target.files[0];
     if (file) {
       uploadVideo(file);
@@ -12,12 +12,16 @@ function App() {
   };
 
   const uploadVideo = (file) => {
-    fetch('http://localhost:8080/presign?filename=' + file.name)
+    fetch('http://localhost:8080/presign?filename=' + file.name) // *3 goes to the /presign endpoint in the backend and gets the 
       .then(response => response.json())
       .then(data => {
         const { url } = data;
+        console.log('Uploading to', url);
         return fetch(url, {
           method: 'PUT',
+          headers: {
+            'Content-Type': 'video/mp4',
+          },
           body: file,
         });
       })
@@ -51,7 +55,7 @@ function App() {
     <div className="App">
       <h2>Video Streaming Site</h2>
       <div>
-      <input type="file" accept="video/*" onChange={handleFileChange} />
+      <input type="file" accept="video/*" onChange={handleFileChange} /> 
     </div>
       {videos.map((videoUrl, index) => (
   <video key={index} width="700px" height="400px" controls>
