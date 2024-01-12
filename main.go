@@ -67,7 +67,7 @@ func handleListBucket(c *gin.Context) { //responsible for listing all the videos
     c.JSON(http.StatusOK, urls)
 }
 
-func handlePresign(c *gin.Context) {
+func handlePresign(c *gin.Context) { //generate the presigned url
     sess := createAWSSession()
     svc := s3.New(sess)
 

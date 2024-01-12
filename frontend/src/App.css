@@ -7,3 +7,18 @@
     margin: 0;
     text-align: center;
 }
+.layout {
+    display: flex;
+  }
+  
+  .video-list {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 90vh;
+  }
+  
+  .main-video {
+    flex: 2;
+    padding: 10px;
+  }
+  
