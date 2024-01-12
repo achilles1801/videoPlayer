@@ -1,6 +1,6 @@
 package main
 
-import (
+import ( // import the needed packages
 	"log"
 	"net/http"
 	"os"
@@ -19,22 +19,16 @@ import (
 
 func main() {
     router := gin.Default() // entry point for our application
-    err := godotenv.Load()
+    err := godotenv.Load() // load the .env file
     if err != nil {
         log.Fatal("Error loading .env file")
     }
-    config := cors.DefaultConfig()
-    config.AllowOrigins = []string{"http://localhost:3000"} // Replace with your frontend URL
-    router.Use(cors.New(config))
+    config := cors.DefaultConfig() // configure CORS
+    config.AllowOrigins = []string{"http://localhost:3000"} // allow requests from localhost:3000
+    router.Use(cors.New(config)) // use the CORS configuration
 
     router.GET("/presign", handlePresign) // when a GET request is made to /presign, call handlePresign
     router.GET("/list", handleListBucket)  // when a GET request is made to /list, call handleListBucket
-
-    // // Serve the main app when visiting the root path "/"
-    // router.GET("/", func(c *gin.Context) {
-    //     c.File("./frontend/index.html")
-    // })
-    // router.Static("/js", "./frontend/js")
 
     router.Run(":8080") // serve on port 8080
 }
@@ -93,7 +87,7 @@ func handlePresign(c *gin.Context) {
     req, _ := svc.PutObjectRequest(&s3.PutObjectInput{
         Bucket: aws.String("majdks-video-player-bucket"),
         Key:    &key,
-        ACL:   aws.String("public-read"),
+        // ACL:   aws.String("public-read"),
         ContentType: aws.String("video/mp4"),
     })
     urlStr, err := req.Presign(15 * time.Minute) // URL expires in 15 minutes
@@ -107,7 +101,7 @@ func handlePresign(c *gin.Context) {
 }
 
 
-func createAWSSession() *session.Session {
+func createAWSSession() *session.Session { // similar to logging in to AWS
     awsAccessKeyID := os.Getenv("AWS_ACCESS_KEY_ID")
     awsSecretAccessKey := os.Getenv("AWS_SECRET_ACCESS_KEY")
 
