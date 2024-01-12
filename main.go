@@ -70,6 +70,7 @@ func handlePresign(c *gin.Context) {
     req, _ := svc.PutObjectRequest(&s3.PutObjectInput{
         Bucket: aws.String("majdks-video-player-bucket"),
         Key:    &key,
+        ACL:   aws.String("public-read"),
     })
     urlStr, err := req.Presign(15 * time.Minute) // URL expires in 15 minutes
     if err != nil {
