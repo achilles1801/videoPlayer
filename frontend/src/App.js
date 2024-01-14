@@ -16,7 +16,7 @@ function App() {
   };
 
   const uploadVideo = (file) => {
-    fetch('http://videoplayer.majdk.com/presign?filename=' + file.name)
+    fetch('https://videoplayer.majdk.com/presign?filename=' + file.name)
       .then(response => response.json())
       .then(data => {
         const { url } = data;
@@ -47,7 +47,7 @@ function App() {
   
   
   const fetchVideos = () => {
-    fetch('http://localhost:8080/list')
+    fetch('https://videoplayer.majdk.com/list')
       .then(response => response.json())
       .then(data => setVideos(data))
       .catch(error => console.error('Error fetching videos:', error));
@@ -59,7 +59,7 @@ function App() {
   const handleDelete = (event, videoUrl) => {
     event.stopPropagation(); // Prevent the click event from triggering the video selection
   
-    fetch('http://localhost:8080/delete?videoUrl=' + encodeURIComponent(videoUrl), {
+    fetch('https://videoplayer.majdk.com/delete?videoUrl=' + encodeURIComponent(videoUrl), {
       method: 'DELETE',
     })
       .then(response => {
