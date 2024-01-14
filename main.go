@@ -24,7 +24,7 @@ func main() {
         log.Fatal("Error loading .env file")
     }
     config := cors.DefaultConfig() // configure CORS
-    config.AllowOrigins = []string{"http://localhost:3000"} // allow requests from localhost:3000
+    config.AllowOrigins = []string{"*"} // allow requests from localhost:3000
     router.Use(cors.New(config)) // use the CORS configuration
 
     router.GET("/presign", handlePresign) // when a GET request is made to /presign, call handlePresign
