@@ -16,7 +16,7 @@ function App() {
   };
 
   const uploadVideo = (file) => {
-    fetch('http://localhost:8080/presign?filename=' + file.name)
+    fetch('http://videoplayer.majdk.com/presign?filename=' + file.name)
       .then(response => response.json())
       .then(data => {
         const { url } = data;
