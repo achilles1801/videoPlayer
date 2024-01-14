@@ -29,6 +29,8 @@ func main() {
 
     router.GET("/presign", handlePresign) // when a GET request is made to /presign, call handlePresign
     router.GET("/list", handleListBucket)  // when a GET request is made to /list, call handleListBucket
+    router.DELETE("/delete", handleDelete) // when a DELETE request is made to /delete, call handleDelete
+
 
     router.Run(":8080") // serve on port 8080
 }
@@ -56,8 +58,8 @@ func handleListBucket(c *gin.Context) { //responsible for listing all the videos
 
     // Iterate over the objects in the bucket
     for _, object := range result.Contents {
-        // Check if the object is a .mp4 video
-        if strings.HasSuffix(*object.Key, ".mp4") {
+        // Check if the object is a video file
+        if strings.HasSuffix(*object.Key, ".mp4") || strings.HasSuffix(*object.Key, ".mov") || strings.HasSuffix(*object.Key, ".3gp") || strings.HasSuffix(*object.Key, ".webm") || strings.HasSuffix(*object.Key, ".ogg") {
             // Generate the URL for each object using CloudFront URL
             url := cloudFrontURL + *object.Key
             urls = append(urls, url)
@@ -83,12 +85,29 @@ func handlePresign(c *gin.Context) { //generate the presigned url
     timestamp := time.Now().Format("20060102150405") // Format: YYYYMMDDHHMMSS
     key := "uploads/" + timestamp + "-" + uniqueID + "-" + filename
 
+        // Determine the content type based on the file extension
+    var contentType string
+        if strings.HasSuffix(filename, ".mp4") {
+            contentType = "video/mp4"
+        } else if strings.HasSuffix(filename, ".mov") {
+            contentType = "video/quicktime"
+        } else if strings.HasSuffix(filename, ".3gp") {
+            contentType = "video/3gpp"
+        } else if strings.HasSuffix(filename, ".webm") {
+            contentType = "video/webm"
+        } else if strings.HasSuffix(filename, ".ogg") {
+            contentType = "video/ogg"
+        } else {
+            c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid file type"})
+            return
+        }
+    
     // Generate pre-signed URL
     req, _ := svc.PutObjectRequest(&s3.PutObjectInput{
         Bucket: aws.String("majdks-video-player-bucket"),
         Key:    &key,
         // ACL:   aws.String("public-read"),
-        ContentType: aws.String("video/mp4"),
+        ContentType: aws.String(contentType),
     })
     urlStr, err := req.Presign(15 * time.Minute) // URL expires in 15 minutes
     if err != nil {
@@ -98,6 +117,42 @@ func handlePresign(c *gin.Context) { //generate the presigned url
     log.Println("pre-signed url:",urlStr)
 
     c.JSON(http.StatusOK, gin.H{"url": urlStr})
+}
+func handleDelete(c *gin.Context) {
+    sess := createAWSSession()
+    svc := s3.New(sess)
+
+    // Extract videoUrl from query parameter
+    videoUrl := c.Query("videoUrl")
+    if videoUrl == "" {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Video URL is required"})
+        return
+    }
+
+    // Extract the key from the videoUrl
+    key := strings.TrimPrefix(videoUrl, "https://d2ufs6yhgycudn.cloudfront.net/")
+
+    // Delete the object from the bucket
+    _, err := svc.DeleteObject(&s3.DeleteObjectInput{
+        Bucket: aws.String("majdks-video-player-bucket"),
+        Key:    aws.String(key),
+    })
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete video"})
+        return
+    }
+
+    // Wait to see if the object was deleted
+    err = svc.WaitUntilObjectNotExists(&s3.HeadObjectInput{
+        Bucket: aws.String("majdks-video-player-bucket"),
+        Key:    aws.String(key),
+    })
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete video"})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"message": "Video deleted successfully"})
 }
 
 
