@@ -47,6 +47,7 @@ function App() {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         console.log('Upload successful');
+        fetchVideos();
       })
       .catch(error => {
         console.error('Error uploading video:', error);
@@ -113,47 +114,54 @@ function App() {
   
 
   return (
-    <div className="App bg-gray-100 min-h-screen p-8">
-      <div className="flex flex-col md:flex-row justify-between items-center mb-8">
-      <h2 className="text-3xl font-bold mb-4 md:mb-0 text-center flex items-center justify-center text-gray-700 tracking-wider uppercase">VideoPlayer</h2>      </div>
-      <div className="flex flex-col md:flex-row justify-between mb-8">
-        <div className="flex justify-center mb-8 md:mb-0 md:mr-8 flex-grow">
-          {selectedVideo && (
-            <video key={selectedVideo} className="w-1/2 aspect-video" controls>
-              <source src={selectedVideo} />
-            </video>
-          )}
-        </div>
-  
-        <div className="flex flex-col md:max-w-2xl">
-          <div>
-            <label className="block w-full text-lg py-2 px-4 border border-gray-300 rounded-md mb-2 cursor-pointer hover:bg-gray-200">
-              <input type="file" accept="video/mp4,video/quicktime,video/3gpp,video/webm,video/ogg" onChange={handleFileChange} className="hidden" />
-              Upload Video
-            </label>
-            <p className="text-sm text-gray-600">Please upload only MP4, MOV, 3GP, WebM, or Ogg video files.</p>
+    <div className="App bg-gray-100 min-h-screen">
+      <header className="bg-gray-800 text-white text-center py-4">
+        <h1 className="text-4xl font-bold">VideoPlayer</h1>
+      </header>
+
+      <div className="container mx-auto p-8">
+        <div className="flex flex-col lg:flex-row justify-center items-start lg:items-center gap-8">
+          <div className="w-full lg:w-1/2">
+            {selectedVideo && (
+              <video key={selectedVideo} className="w-full aspect-video rounded-lg shadow-lg" controls>
+                <source src={selectedVideo} />
+              </video>
+            )}
           </div>
-  
-          <div className="overflow-auto p-2 max-h-96">
-            {videos.map((videoUrl, index) => (
-              <div key={index} className="bg-white rounded-lg overflow-hidden shadow-md mb-4 cursor-pointer">
-                <video className="w-full h-40 object-scale-down" onClick={() => setSelectedVideo(videoUrl)}>
-                  <source src={videoUrl} />
-                </video>
-                <button onClick={(event) => handleDelete(event, videoUrl)}
-                className='bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mt-2'
-                >Delete</button>
-              </div>
-            ))}
+
+          <div className="w-full lg:w-1/2 overflow-auto max-h-[550px]">
+            <div className="mb-4">
+              <label className="block w-full text-lg py-2 px-4 bg-gray-200 text-gray-700 rounded-md cursor-pointer hover:bg-gray-300 transition duration-300 ease-in-out">
+                <input type="file" accept="video/mp4,video/quicktime,video/3gpp,video/webm,video/ogg" onChange={handleFileChange} className="hidden" />
+                Upload Video
+              </label>
+              <p className="text-sm text-gray-600 mt-2">Only MP4, MOV, 3GP, WebM, or Ogg video files.</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {videos.map((videoUrl, index) => (
+                <div key={index} className="bg-white rounded-lg overflow-hidden shadow-md cursor-pointer">
+                  <video className="w-full h-40 object-cover" onClick={() => setSelectedVideo(videoUrl)}>
+                    <source src={videoUrl} />
+                  </video>
+                  <button onClick={(event) => handleDelete(event, videoUrl)}
+                    className='w-full bg-red-700 hover:bg-red-900 text-white font-bold py-2 rounded-b-lg'>
+                    Delete
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
-  
-      <footer className="bg-gray-800 text-white text-center p-4 mt-8">
-        © 2024 My Video Stream
-      </footer>
-    </div>
-  );
+
+      <footer className="bg-gray-800 text-white text-center py-4 mt-8">
+        © 2024 My Video Stream by <a href="https://www.linkedin.com/in/majdkhawaldeh/" className="text-blue-500 hover:underline">Majd Khawaldeh</a> and
+
+ <a href="https://www.linkedin.com/in/ayub-hunter/" className="text-blue-500 hover:underline"> Ayub Hunter</a>
+</footer>
+</div>
+);
 }
 
 export default App;
