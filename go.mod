@@ -5,6 +5,7 @@ go 1.21.5
 require github.com/gin-contrib/cors v1.5.0
 
 require (
+	github.com/aws/aws-lambda-go v1.44.0
 	github.com/aws/aws-sdk-go v1.49.13 // indirect
 	github.com/bytedance/sonic v1.10.2 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20230717121745-296ad89f973d // indirect

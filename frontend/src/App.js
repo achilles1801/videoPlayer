@@ -16,10 +16,22 @@ function App() {
   };
 
   const uploadVideo = (file) => {
-    fetch('https://videoplayer.majdk.com/presign?filename=' + file.name)
-      .then(response => response.json())
+    const url = new URL('https://kcynhi0fr1.execute-api.us-east-2.amazonaws.com/new/presign');
+    url.searchParams.append('filename', file.name);
+    url.searchParams.append('contenttype', file.type);
+    console.log('File type:', file.type);
+    
+    fetch(url, {mode: 'cors'})
+      .then(response => {
+        if (!response.ok) {
+          console.error('Error fetching presigned URL:', response.status, response.statusText);
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
       .then(data => {
         const { url } = data;
+        console.log('Presigned URL:', url);
         console.log('Uploading to', url);
         return fetch(url, {
           method: 'PUT',
@@ -30,14 +42,11 @@ function App() {
         });
       })
       .then(response => {
-        if (response.ok) {
-          console.log('Video uploaded successfully');
-          fetchVideos(); // Fetch the updated list of videos
-          const uploadedVideoUrl = URL.createObjectURL(file);
-          setSelectedVideo(uploadedVideoUrl); // Set the newly uploaded video as the selected video
-        } else {
-          console.error('Upload failed', response.statusText);
+        if (!response.ok) {
+          console.error('Error uploading file:', response.status, response.statusText);
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
+        console.log('Upload successful');
       })
       .catch(error => {
         console.error('Error uploading video:', error);
@@ -47,25 +56,45 @@ function App() {
   
   
   const fetchVideos = () => {
-    fetch('https://videoplayer.majdk.com/list')
-      .then(response => response.json())
-      .then(data => setVideos(data))
-      .catch(error => console.error('Error fetching videos:', error));
+    const request = new Request('https://kcynhi0fr1.execute-api.us-east-2.amazonaws.com/new/list');
+    fetch(request)
+      .then(response => {
+        if (!response.ok) {
+          console.error('Error status:', response.status);
+          return response.text().then(text => {
+            console.error('Error body:', text);
+            throw new Error('Network response was not ok');
+          });
+        }
+        return response.json();
+      })
+      .then(data => {
+        // Ensure that videos is always an array
+        setVideos(Array.isArray(data) ? data : []);
+      })
+      .catch(error => {
+        console.error('Error fetching videos:', error);
+        // Set videos to an empty array in case of error
+        setVideos([]);
+      });
   };
+  
   
   useEffect(() => {
     fetchVideos();
   }, []);
+
+
   const handleDelete = (event, videoUrl) => {
     event.stopPropagation(); // Prevent the click event from triggering the video selection
-  
-    fetch('https://videoplayer.majdk.com/delete?videoUrl=' + encodeURIComponent(videoUrl), {
+    fetch(`https://kcynhi0fr1.execute-api.us-east-2.amazonaws.com/new/delete?videoUrl=${encodeURIComponent(videoUrl)}`, {
       method: 'DELETE',
     })
       .then(response => {
         if (response.ok) {
           console.log('Video deleted successfully');
-          fetchVideos(); // Fetch the updated list of videos
+          // Optimistically update the state by filtering out the deleted video
+          setVideos(videos => videos.filter(url => url !== videoUrl));
           if (selectedVideo === videoUrl) {
             setSelectedVideo(null); // Unselect the video if it's currently selected
           }
@@ -78,6 +107,8 @@ function App() {
         console.error('Error details:', error.message);
       });
   };
+  
+
 
   
 
