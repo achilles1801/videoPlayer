@@ -141,7 +141,7 @@ function App() {
             <div className="overflow-auto max-h-[550px] p-2">
               {videos.map((videoUrl, index) => (
                 <div key={index} className="bg-white rounded-lg overflow-hidden shadow-md mb-4">
-                  <video className="w-full h-40 object-cover" onClick={() => setSelectedVideo(videoUrl)}>
+                  <video className="w-full h-40 object-contain" onClick={() => setSelectedVideo(videoUrl)}  playsInline>
                     <source src={videoUrl} />
                   </video>
                   <button onClick={(event) => handleDelete(event, videoUrl)}
