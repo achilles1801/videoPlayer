@@ -120,7 +120,7 @@ function App() {
       </header>
 
       <div className="container mx-auto p-8">
-        <div className="flex flex-col lg:flex-row justify-center items-start lg:items-center gap-8">
+        <div className="flex flex-wrap justify-center items-start gap-8">
           <div className="w-full lg:w-1/2">
             {selectedVideo && (
               <video key={selectedVideo} className="w-full aspect-video rounded-lg shadow-lg" controls>
@@ -129,18 +129,18 @@ function App() {
             )}
           </div>
 
-          <div className="w-full lg:w-1/2 overflow-auto max-h-[550px]">
-            <div className="mb-4">
-              <label className="block w-full text-lg py-2 px-4 bg-gray-200 text-gray-700 rounded-md cursor-pointer hover:bg-gray-300 transition duration-300 ease-in-out">
+          <div className="w-full lg:w-1/2">
+            <div className="mb-4 text-center">
+              <label className="block w-full lg:w-3/4 mx-auto text-lg py-2 px-4 bg-gray-200 text-gray-700 rounded-md cursor-pointer hover:bg-gray-300 transition duration-300 ease-in-out">
                 <input type="file" accept="video/mp4,video/quicktime,video/3gpp,video/webm,video/ogg" onChange={handleFileChange} className="hidden" />
                 Upload Video
               </label>
               <p className="text-sm text-gray-600 mt-2">Only MP4, MOV, 3GP, WebM, or Ogg video files.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="overflow-auto max-h-[550px] p-2">
               {videos.map((videoUrl, index) => (
-                <div key={index} className="bg-white rounded-lg overflow-hidden shadow-md cursor-pointer">
+                <div key={index} className="bg-white rounded-lg overflow-hidden shadow-md mb-4">
                   <video className="w-full h-40 object-cover" onClick={() => setSelectedVideo(videoUrl)}>
                     <source src={videoUrl} />
                   </video>
@@ -156,12 +156,10 @@ function App() {
       </div>
 
       <footer className="bg-gray-800 text-white text-center py-4 mt-8">
-        © 2024 My Video Stream by <a href="https://www.linkedin.com/in/majdkhawaldeh/" className="text-blue-500 hover:underline">Majd Khawaldeh</a> and
-
- <a href="https://www.linkedin.com/in/ayub-hunter/" className="text-blue-500 hover:underline"> Ayub Hunter</a>
-</footer>
-</div>
-);
+        © 2024 My Video Stream by <a href="https://www.linkedin.com/in/majdkhawaldeh/" className="text-blue-500 hover:underline">Majd Khawaldeh</a> and <a href="https://www.linkedin.com/in/ayub-hunter/" className="text-blue-500 hover:underline">Ayub Hunter</a>
+      </footer>
+    </div>
+  );
 }
 
 export default App;
